@@ -3,152 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shopee OTP TH - Premium V4</title>
+    <title>Shopee OTP TH - Premium V5</title>
     <style>
-        :root {
-            --shopee-orange: #ee4d2d;
-            --shopee-orange-dark: #d73211;
-            --bg-gray: #f5f5f5;
-            --text-main: #222;
-            --text-sub: #666;
-            --white: #ffffff;
-            --blue: #0055aa;
-            --green: #2ecc71;
-            --red: #e74c3c;
-            --shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
+        :root { --shopee-orange: #ee4d2d; --bg-gray: #f5f5f5; --white: #ffffff; --blue: #0055aa; --green: #2ecc71; --red: #e74c3c; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-gray); color: var(--text-main); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .app-container { width: 100%; max-width: 450px; padding: 20px; padding-bottom: 100px; }
-        .header { background: var(--white); padding: 20px; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 20px; text-align: center; }
-        .header h1 { color: var(--shopee-orange); margin: 0; font-size: 24px; font-weight: 800; }
-        .balance-card { background: linear-gradient(135deg, var(--shopee-orange), #ff7337); color: white; padding: 15px; border-radius: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(238, 77, 45, 0.3); }
-        .balance-info span { font-size: 14px; opacity: 0.9; display: block; }
-        .balance-info strong { font-size: 24px; font-weight: 700; }
-        .refresh-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; backdrop-filter: blur(5px); }
-        .buy-section { margin-bottom: 20px; }
-        .btn-buy { background-color: var(--shopee-orange); color: white; width: 100%; padding: 18px; border: none; border-radius: 18px; font-size: 18px; font-weight: 700; box-shadow: 0 6px 15px rgba(238, 77, 45, 0.2); cursor: pointer; }
-        .btn-buy:disabled { background-color: #ccc; box-shadow: none; }
-        .order-card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); border: 2px solid var(--shopee-orange); margin-bottom: 20px; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-        .status-waiting { background: #fff9db; color: #f08c00; }
-        .status-received { background: #ebfbee; color: #2f9e44; }
-        .phone-number-box { text-align: center; padding: 15px; background: #fff5f2; border-radius: 15px; margin-bottom: 15px; cursor: pointer; }
-        .phone-number-box strong { font-size: 28px; color: var(--shopee-orange); letter-spacing: 1px; }
-        .otp-display-box { background: #e7f5ff; border: 2px dashed var(--blue); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; cursor: pointer; }
-        .otp-display-box .otp-code { font-size: 42px; font-weight: 800; color: var(--blue); display: block; margin: 10px 0; letter-spacing: 5px; }
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-action { padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; color: white; cursor: pointer; }
-        .btn-blue { background-color: var(--blue); }
-        .btn-green { background-color: var(--green); grid-column: span 2; }
-        .btn-red { background-color: #f1f3f5; color: #fa5252; }
-        .history-item { background: var(--white); padding: 15px; border-radius: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg-gray); margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .app-container { width: 100%; max-width: 450px; }
+        .card { background: var(--white); padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .header h1 { color: var(--shopee-orange); text-align: center; margin: 0 0 15px 0; font-size: 22px; }
+        .balance-box { background: linear-gradient(135deg, var(--shopee-orange), #ff7337); color: white; padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-buy { background: var(--shopee-orange); color: white; width: 100%; font-size: 18px; margin-top: 10px; }
+        .btn-refresh { background: rgba(255,255,255,0.2); color: white; font-size: 12px; border: 1px solid white; }
+        .order-card { border: 2px solid var(--shopee-orange); animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .phone-box { background: #fff5f2; padding: 15px; border-radius: 12px; text-align: center; margin: 10px 0; font-size: 24px; color: var(--shopee-orange); font-weight: bold; }
+        .otp-box { background: #e7f5ff; border: 2px dashed var(--blue); padding: 15px; border-radius: 12px; text-align: center; margin: 10px 0; }
+        .otp-code { font-size: 36px; color: var(--blue); font-weight: 800; letter-spacing: 3px; }
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .history-item { background: white; padding: 12px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .hidden { display: none !important; }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; z-index: 1000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        footer { text-align: center; padding: 20px; color: #bbb; font-size: 12px; }
-        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 5px; }
+        .toast { position: fixed; bottom: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; opacity: 0; transition: 0.3s; }
+        .spinner { width: 14px; height: 14px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 5px; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="header">
+        <div class="card header">
             <h1>SHOPEE OTP TH</h1>
-            <div class="balance-card">
-                <div class="balance-info">
-                    <span>ยอดเงินคงเหลือ</span>
-                    <strong id="balance">0.00</strong> <small>USD</small>
-                </div>
-                <button onclick="updateBalance()" class="refresh-btn" id="refresh-btn">รีเฟรช</button>
+            <div class="balance-box">
+                <div><small>ยอดเงินคงเหลือ</small><br><strong id="balance" style="font-size: 20px;">0.00</strong> USD</div>
+                <button onclick="updateBalance()" class="btn btn-refresh" id="ref-btn">รีเฟรช</button>
             </div>
+            <button id="buy-btn" onclick="buyNumber()" class="btn btn-buy">ซื้อเบอร์ Shopee (TH)</button>
         </div>
-        <div class="buy-section">
-            <button id="buy-btn" onclick="buyNumber()" class="btn-buy">
-                <span id="buy-btn-text">ซื้อเบอร์ Shopee (TH)</span>
-            </button>
-        </div>
-        <div id="current-order" class="order-card hidden">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <span style="font-weight:600; color:var(--text-sub);">รายการปัจจุบัน</span>
-                <span id="status-display" class="status-tag status-waiting">รอรับรหัส</span>
+
+        <div id="current-order" class="card order-card hidden">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#888;">
+                <span>รายการปัจจุบัน</span>
+                <span id="status-text" style="color:var(--shopee-orange); font-weight:bold;">รอรับรหัส</span>
             </div>
-            <div class="phone-number-box" onclick="copy('phone-display', 'คัดลอกเบอร์แล้ว')">
-                <span style="display:block; font-size:14px; color:var(--text-sub);">เบอร์โทรศัพท์ (แตะเพื่อคัดลอก)</span>
-                <strong id="phone-display"></strong>
+            <div class="phone-box" onclick="copy('phone-display')">
+                <span id="phone-display"></span>
             </div>
-            <div id="otp-container" class="otp-display-box hidden" onclick="copy('otp-display', 'คัดลอก OTP แล้ว')">
-                <span style="color:var(--blue); font-weight:600;">รหัส OTP (แตะเพื่อคัดลอก)</span>
-                <span id="otp-display" class="otp-code"></span>
+            <div id="otp-container" class="otp-box hidden" onclick="copy('otp-display')">
+                <div style="font-size:12px; color:var(--blue);">รหัส OTP</div>
+                <div id="otp-display" class="otp-code"></div>
             </div>
             <div class="action-grid">
-                <button id="get-otp-btn" onclick="checkOtp()" class="btn-action btn-blue">ดึงรหัส OTP</button>
-                <button id="cancel-btn" onclick="setStatus(8)" class="btn-action btn-red">ยกเลิกเบอร์</button>
-                <button id="finish-btn" onclick="setStatus(6)" class="btn-action btn-green hidden">ใช้งานเสร็จสิ้น</button>
+                <button id="get-otp-btn" onclick="checkOtp()" class="btn" style="background:var(--blue); color:white;">ดึงรหัส OTP</button>
+                <button id="cancel-btn" onclick="setStatus(8)" class="btn" style="background:#f1f3f5; color:var(--red);">ยกเลิก</button>
+                <button id="finish-btn" onclick="setStatus(6)" class="btn hidden" style="background:var(--green); color:white; grid-column: span 2;">เสร็จสิ้น</button>
             </div>
         </div>
-        <div class="history-section">
-            <h3 style="border-left:4px solid var(--shopee-orange); padding-left:10px; margin:20px 0 15px 0;">ประวัติการสั่งซื้อ</h3>
-            <div id="history-list"></div>
-        </div>
-        <footer>DESIGN BY FB: NICKNAME RITTIPON</footer>
+
+        <h3 style="font-size:16px; margin:10px 5px;">ประวัติล่าสุด</h3>
+        <div id="history-list"></div>
+        <footer style="text-align:center; color:#ccc; font-size:10px; margin-top:20px;">DESIGN BY FB: NICKNAME RITTIPON</footer>
     </div>
     <div id="toast" class="toast">คัดลอกแล้ว</div>
+
     <script>
         const API_KEY = '2226909772f9f7fc555A3e50381bA433';
         const BASE_URL = 'https://hero-sms.com/stubs/handler_api.php';
-        const PROXY = 'https://api.allorigins.win/get?url=';
+        // ใช้ Proxy สำรองหลายตัว
+        const PROXIES = [
+            'https://api.allorigins.win/get?url=',
+            'https://api.codetabs.com/v1/proxy?quest='
+        ];
 
         let currentId = null;
-        let history = JSON.parse(localStorage.getItem('shopee_history_v4') || '[]');
+        let history = JSON.parse(localStorage.getItem('shopee_history_v5') || '[]');
 
         async function callApi(action, params = {}) {
             const urlParams = new URLSearchParams({ api_key: API_KEY, action, ...params });
-            const targetUrl = `${BASE_URL}?<LaTex>${urlParams.toString()}`;
-            try {
-                const response = await fetch(`$</LaTex>{PROXY}${encodeURIComponent(targetUrl)}`);
-                const data = await response.json();
-                return data.contents; // AllOrigins returns the raw response in 'contents'
-            } catch (e) { showToast('การเชื่อมต่อผิดพลาด'); return 'ERROR'; }
+            const targetUrl = `<LaTex>${BASE_URL}?$</LaTex>{urlParams.toString()}`;
+            
+            // ลองใช้ Proxy ตัวแรกก่อน
+            for (let proxy of PROXIES) {
+                try {
+                    const response = await fetch(`<LaTex>${proxy}$</LaTex>{encodeURIComponent(targetUrl)}`);
+                    const data = await response.json();
+                    // AllOrigins คืนค่าใน contents, Codetabs คืนค่าตรงๆ
+                    return data.contents || data;
+                } catch (e) { continue; }
+            }
+            return 'ERROR';
         }
 
         async function updateBalance() {
-            const btn = document.getElementById('refresh-btn');
+            const btn = document.getElementById('ref-btn');
             btn.innerHTML = '<div class="spinner"></div>';
-            const data = await callApi('getBalance');
-            if (data && data.startsWith('ACCESS_BALANCE:')) {
-                const rub = parseFloat(data.split(':')[1]);
-                const usd = rub * 0.011; // อัตราแลกเปลี่ยนโดยประมาณ
-                document.getElementById('balance').textContent = usd.toFixed(2);
-            } else {
-                showToast('ไม่สามารถดึงยอดเงินได้');
-            }
+            const res = await callApi('getBalance');
+            if (res && res.includes('ACCESS_BALANCE:')) {
+                const rub = parseFloat(res.split(':')[1]);
+                document.getElementById('balance').textContent = (rub * 0.011).toFixed(2);
+            } else { showToast('เชื่อมต่อล้มเหลว'); }
             btn.textContent = 'รีเฟรช';
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg; toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-        }
-
-        function renderHistory() {
-            const list = document.getElementById('history-list');
-            if (history.length === 0) { list.innerHTML = '<p style="text-align:center; color:#999;">ยังไม่มีประวัติ</p>'; return; }
-            list.innerHTML = history.map(h => `
-                <div class="history-item">
-                    <div><strong>${h.phone}</strong><br><small style="color:#999;"><LaTex>${h.time}</small></div>
-                    <div style="text-align:right;"><span style="color:var(--blue); font-weight:700;">$</LaTex>{h.otp || '---'}</span><br><small style="color:<LaTex>${h.status === 'สำเร็จ' ? 'var(--green)' : 'var(--red)'}">$</LaTex>{h.status}</small></div>
-                </div>
-            `).join('');
         }
 
         async function buyNumber() {
             const btn = document.getElementById('buy-btn');
             btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> กำลังขอเบอร์...';
-            const data = await callApi('getNumber', { country: '52', service: 'kt' });
-            if (data && data.startsWith('ACCESS_NUMBER:')) {
-                const [_, id, phone] = data.split(':');
+            const res = await callApi('getNumber', { country: '52', service: 'kt' });
+            if (res && res.includes('ACCESS_NUMBER:')) {
+                const [_, id, phone] = res.split(':');
                 currentId = id;
                 document.getElementById('phone-display').textContent = phone;
                 document.getElementById('current-order').classList.remove('hidden');
@@ -156,55 +116,63 @@
                 document.getElementById('get-otp-btn').classList.remove('hidden');
                 document.getElementById('cancel-btn').classList.remove('hidden');
                 document.getElementById('finish-btn').classList.add('hidden');
-                document.getElementById('status-display').textContent = 'รอรับรหัส';
-                document.getElementById('status-display').className = 'status-tag status-waiting';
+                document.getElementById('status-text').textContent = 'รอรับรหัส';
                 updateBalance();
-            } else { alert('เกิดข้อผิดพลาด: ' + data); }
+            } else { alert('ขอเบอร์ไม่ได้: ' + res); }
             btn.disabled = false; btn.textContent = 'ซื้อเบอร์ Shopee (TH)';
         }
 
         async function checkOtp() {
             const btn = document.getElementById('get-otp-btn');
-            btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> กำลังเช็ค...';
-            const data = await callApi('getStatus', { id: currentId });
-            if (data && data.startsWith('STATUS_OK:')) {
-                const otp = data.split(':')[1];
+            btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> เช็ค...';
+            const res = await callApi('getStatus', { id: currentId });
+            if (res && res.includes('STATUS_OK:')) {
+                const otp = res.split(':')[1];
                 document.getElementById('otp-display').textContent = otp;
-                document.getElementById('status-display').textContent = 'ได้รับรหัสแล้ว';
-                document.getElementById('status-display').className = 'status-tag status-received';
                 document.getElementById('otp-container').classList.remove('hidden');
                 document.getElementById('finish-btn').classList.remove('hidden');
                 document.getElementById('get-otp-btn').classList.add('hidden');
                 document.getElementById('cancel-btn').classList.add('hidden');
-                history.unshift({ phone: document.getElementById('phone-display').textContent, otp: otp, status: 'สำเร็จ', time: new Date().toLocaleTimeString() });
-                localStorage.setItem('shopee_history_v4', JSON.stringify(history.slice(0, 15)));
-                renderHistory();
-            } else { showToast(data === 'STATUS_WAIT_CODE' ? 'รอรหัสสักครู่...' : data); }
+                document.getElementById('status-text').textContent = 'ได้รับรหัสแล้ว';
+                addHistory(document.getElementById('phone-display').textContent, otp, 'สำเร็จ');
+            } else { showToast(res === 'STATUS_WAIT_CODE' ? 'รอรหัส...' : res); }
             btn.disabled = false; btn.textContent = 'ดึงรหัส OTP';
         }
 
         async function setStatus(s) {
             if (s === 8 && !confirm('ยกเลิกเบอร์?')) return;
             await callApi('setStatus', { id: currentId, status: s });
-            if (s === 8) {
-                history.unshift({ phone: document.getElementById('phone-display').textContent, otp: '---', status: 'ยกเลิก', time: new Date().toLocaleTimeString() });
-                localStorage.setItem('shopee_history_v4', JSON.stringify(history.slice(0, 15)));
-                renderHistory();
-            }
+            if (s === 8) addHistory(document.getElementById('phone-display').textContent, '---', 'ยกเลิก');
             document.getElementById('current-order').classList.add('hidden');
             currentId = null; updateBalance();
         }
 
-        function copy(id, msg) {
+        function addHistory(phone, otp, status) {
+            history.unshift({ phone, otp, status, time: new Date().toLocaleTimeString() });
+            localStorage.setItem('shopee_history_v5', JSON.stringify(history.slice(0, 10)));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = history.length ? history.map(h => `
+                <div class="history-item">
+                    <div><strong><LaTex>${h.phone}</strong><br><small>$</LaTex>{h.time}</small></div>
+                    <div style="text-align:right;"><span style="color:var(--blue); font-weight:bold;"><LaTex>${h.otp}</span><br><small>$</LaTex>{h.status}</small></div>
+                </div>
+            `).join('') : '<p style="text-align:center; color:#999;">ไม่มีประวัติ</p>';
+        }
+
+        function copy(id) {
             const text = document.getElementById(id).textContent;
-            if (!text) return;
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast(msg);
+            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el);
+            el.select(); document.execCommand('copy'); document.body.removeChild(el);
+            showToast('คัดลอกแล้ว: ' + text);
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast'); t.textContent = m; t.style.opacity = 1;
+            setTimeout(() => t.style.opacity = 0, 2000);
         }
 
         updateBalance(); renderHistory();
