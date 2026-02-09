@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Shopee OTP TH - Premium Tool</title>
+    <title>Shopee OTP TH - Premium V4</title>
     <style>
         :root {
             --shopee-orange: #ee4d2d;
@@ -28,17 +27,19 @@
         .balance-info strong { font-size: 24px; font-weight: 700; }
         .refresh-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; padding: 8px 15px; border-radius: 10px; font-size: 13px; font-weight: 600; backdrop-filter: blur(5px); }
         .buy-section { margin-bottom: 20px; }
-        .btn-buy { background-color: var(--shopee-orange); color: white; width: 100%; padding: 18px; border: none; border-radius: 18px; font-size: 18px; font-weight: 700; box-shadow: 0 6px 15px rgba(238, 77, 45, 0.2); }
-        .order-card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); border: 2px solid var(--shopee-orange); margin-bottom: 20px; }
+        .btn-buy { background-color: var(--shopee-orange); color: white; width: 100%; padding: 18px; border: none; border-radius: 18px; font-size: 18px; font-weight: 700; box-shadow: 0 6px 15px rgba(238, 77, 45, 0.2); cursor: pointer; }
+        .btn-buy:disabled { background-color: #ccc; box-shadow: none; }
+        .order-card { background: var(--white); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); border: 2px solid var(--shopee-orange); margin-bottom: 20px; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
         .status-waiting { background: #fff9db; color: #f08c00; }
         .status-received { background: #ebfbee; color: #2f9e44; }
-        .phone-number-box { text-align: center; padding: 15px; background: #fff5f2; border-radius: 15px; margin-bottom: 15px; }
+        .phone-number-box { text-align: center; padding: 15px; background: #fff5f2; border-radius: 15px; margin-bottom: 15px; cursor: pointer; }
         .phone-number-box strong { font-size: 28px; color: var(--shopee-orange); letter-spacing: 1px; }
-        .otp-display-box { background: #e7f5ff; border: 2px dashed var(--blue); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; }
+        .otp-display-box { background: #e7f5ff; border: 2px dashed var(--blue); border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 15px; cursor: pointer; }
         .otp-display-box .otp-code { font-size: 42px; font-weight: 800; color: var(--blue); display: block; margin: 10px 0; letter-spacing: 5px; }
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-action { padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; color: white; }
+        .btn-action { padding: 14px; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; color: white; cursor: pointer; }
         .btn-blue { background-color: var(--blue); }
         .btn-green { background-color: var(--green); grid-column: span 2; }
         .btn-red { background-color: #f1f3f5; color: #fa5252; }
@@ -96,19 +97,18 @@
     <script>
         const API_KEY = '2226909772f9f7fc555A3e50381bA433';
         const BASE_URL = 'https://hero-sms.com/stubs/handler_api.php';
-        // ใช้ Proxy ตัวใหม่ที่เสถียรกว่า
-        const PROXY = 'https://api.codetabs.com/v1/proxy?quest=';
+        const PROXY = 'https://api.allorigins.win/get?url=';
 
         let currentId = null;
-        let history = JSON.parse(localStorage.getItem('shopee_history_v3') || '[]');
+        let history = JSON.parse(localStorage.getItem('shopee_history_v4') || '[]');
 
         async function callApi(action, params = {}) {
             const urlParams = new URLSearchParams({ api_key: API_KEY, action, ...params });
             const targetUrl = `${BASE_URL}?<LaTex>${urlParams.toString()}`;
             try {
                 const response = await fetch(`$</LaTex>{PROXY}${encodeURIComponent(targetUrl)}`);
-                const data = await response.text();
-                return data;
+                const data = await response.json();
+                return data.contents; // AllOrigins returns the raw response in 'contents'
             } catch (e) { showToast('การเชื่อมต่อผิดพลาด'); return 'ERROR'; }
         }
 
@@ -116,11 +116,12 @@
             const btn = document.getElementById('refresh-btn');
             btn.innerHTML = '<div class="spinner"></div>';
             const data = await callApi('getBalance');
-            if (data.startsWith('ACCESS_BALANCE:')) {
-                // แปลงจาก RUB เป็น USD (สมมติอัตราแลกเปลี่ยนโดยประมาณ 1 RUB = 0.011 USD)
+            if (data && data.startsWith('ACCESS_BALANCE:')) {
                 const rub = parseFloat(data.split(':')[1]);
-                const usd = rub * 0.011; 
+                const usd = rub * 0.011; // อัตราแลกเปลี่ยนโดยประมาณ
                 document.getElementById('balance').textContent = usd.toFixed(2);
+            } else {
+                showToast('ไม่สามารถดึงยอดเงินได้');
             }
             btn.textContent = 'รีเฟรช';
         }
@@ -146,7 +147,7 @@
             const btn = document.getElementById('buy-btn');
             btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> กำลังขอเบอร์...';
             const data = await callApi('getNumber', { country: '52', service: 'kt' });
-            if (data.startsWith('ACCESS_NUMBER:')) {
+            if (data && data.startsWith('ACCESS_NUMBER:')) {
                 const [_, id, phone] = data.split(':');
                 currentId = id;
                 document.getElementById('phone-display').textContent = phone;
@@ -155,6 +156,8 @@
                 document.getElementById('get-otp-btn').classList.remove('hidden');
                 document.getElementById('cancel-btn').classList.remove('hidden');
                 document.getElementById('finish-btn').classList.add('hidden');
+                document.getElementById('status-display').textContent = 'รอรับรหัส';
+                document.getElementById('status-display').className = 'status-tag status-waiting';
                 updateBalance();
             } else { alert('เกิดข้อผิดพลาด: ' + data); }
             btn.disabled = false; btn.textContent = 'ซื้อเบอร์ Shopee (TH)';
@@ -164,7 +167,7 @@
             const btn = document.getElementById('get-otp-btn');
             btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> กำลังเช็ค...';
             const data = await callApi('getStatus', { id: currentId });
-            if (data.startsWith('STATUS_OK:')) {
+            if (data && data.startsWith('STATUS_OK:')) {
                 const otp = data.split(':')[1];
                 document.getElementById('otp-display').textContent = otp;
                 document.getElementById('status-display').textContent = 'ได้รับรหัสแล้ว';
@@ -174,7 +177,7 @@
                 document.getElementById('get-otp-btn').classList.add('hidden');
                 document.getElementById('cancel-btn').classList.add('hidden');
                 history.unshift({ phone: document.getElementById('phone-display').textContent, otp: otp, status: 'สำเร็จ', time: new Date().toLocaleTimeString() });
-                localStorage.setItem('shopee_history_v3', JSON.stringify(history.slice(0, 15)));
+                localStorage.setItem('shopee_history_v4', JSON.stringify(history.slice(0, 15)));
                 renderHistory();
             } else { showToast(data === 'STATUS_WAIT_CODE' ? 'รอรหัสสักครู่...' : data); }
             btn.disabled = false; btn.textContent = 'ดึงรหัส OTP';
@@ -185,7 +188,7 @@
             await callApi('setStatus', { id: currentId, status: s });
             if (s === 8) {
                 history.unshift({ phone: document.getElementById('phone-display').textContent, otp: '---', status: 'ยกเลิก', time: new Date().toLocaleTimeString() });
-                localStorage.setItem('shopee_history_v3', JSON.stringify(history.slice(0, 15)));
+                localStorage.setItem('shopee_history_v4', JSON.stringify(history.slice(0, 15)));
                 renderHistory();
             }
             document.getElementById('current-order').classList.add('hidden');
@@ -194,7 +197,14 @@
 
         function copy(id, msg) {
             const text = document.getElementById(id).textContent;
-            navigator.clipboard.writeText(text).then(() => showToast(msg));
+            if (!text) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(msg);
         }
 
         updateBalance(); renderHistory();
