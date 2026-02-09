@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shopee OTP TH - Mobile Tool</title>
+    <style>
+        :root { --primary: #ee4d2d; --secondary: #2673dd; --success: #2ecc71; --danger: #e74c3c; --bg: #f5f5f5; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 400px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); box-sizing: border-box; }
+        header { text-align: center; border-bottom: 1px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
+        h1 { color: var(--primary); font-size: 20px; margin: 0; }
+        .balance-box { background: #fff3f0; padding: 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; -webkit-tap-highlight-color: transparent; }
+        .btn-primary { background: var(--primary); width: 100%; font-size: 18px; margin-bottom: 15px; }
+        .btn-sec { background: var(--secondary); font-size: 14px; padding: 8px 15px; }
+        .order-card { border: 2px solid var(--primary); padding: 15px; border-radius: 12px; margin-top: 10px; background: #fff; }
+        .hidden { display: none !important; }
+        .otp-box { background: #f0f9ff; padding: 15px; text-align: center; border-radius: 10px; margin-top: 15px; border: 1px dashed var(--secondary); }
+        .otp-code { font-size: 36px; font-weight: 800; color: var(--secondary); display: block; margin: 5px 0; letter-spacing: 2px; }
+        .info-row { margin: 10px 0; font-size: 16px; }
+        .status-badge { padding: 3px 8px; border-radius: 5px; font-size: 12px; background: #eee; font-weight: bold; }
+        .history-section { margin-top: 25px; }
+        .history-item { background: #fafafa; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ddd; font-size: 14px; }
+        footer { text-align: center; margin-top: 30px; font-size: 12px; color: #999; }
+        .copy-btn { background: #eee; color: #333; padding: 4px 8px; font-size: 12px; border-radius: 4px; margin-left: 5px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Shopee OTP (TH Only)</h1>
+            <div class="balance-box">
+                <span>ยอดเงิน: <strong id="balance">0.00</strong></span>
+                <button onclick="updateBalance()" class="btn btn-sec">รีเฟรช</button>
+            </div>
+        </header>
+        <button id="buy-btn" onclick="buyNumber()" class="btn btn-primary">ซื้อเบอร์ Shopee (TH)</button>
+        <div id="current-order" class="order-card hidden">
+            <div class="info-row">
+                เบอร์: <strong id="phone-display" style="font-size: 22px; color: var(--primary);"></strong> 
+                <button onclick="copy('phone-display')" class="copy-btn">คัดลอก</button>
+            </div>
+            <div class="info-row">
+                สถานะ: <span id="status-display" class="status-badge">waiting</span>
+            </div>
+            <div id="otp-container" class="otp-box hidden">
+                <span style="font-size: 14px; color: #666;">รหัส OTP ของคุณ:</span>
+                <span id="otp-display" class="otp-code"></span>
+                <button onclick="copy('otp-display')" class="btn btn-sec" style="width: 100%;">คัดลอก OTP</button>
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 15px;">
+                <button id="get-otp-btn" onclick="checkOtp()" class="btn" style="background: var(--secondary); flex: 1;">ดึง OTP</button>
+                <button id="finish-btn" onclick="setStatus(6)" class="btn hidden" style="background: var(--success); flex: 1;">เสร็จสิ้น</button>
+                <button id="cancel-btn" onclick="setStatus(8)" class="btn" style="background: var(--danger); flex: 1;">ยกเลิก</button>
+            </div>
+        </div>
+        <div class="history-section">
+            <h3 style="font-size: 16px; border-left: 4px solid var(--primary); padding-left: 10px;">รายการล่าสุด</h3>
+            <div id="history-list"><p style="color: #999; font-size: 12px; text-align: center;">ยังไม่มีประวัติ</p></div>
+        </div>
+        <footer>Design by FB: nickname rittipon</footer>
+    </div>
+    <script>
+        const API_KEY = '2226909772f9f7fc555A3e50381bA433';
+        const BASE_URL = 'https://hero-sms.com/stubs/handler_api.php';
+        const PROXY = 'https://api.allorigins.win/get?url=';
+        let currentId = null;
+        let history = JSON.parse(localStorage.getItem('shopee_history') || '[]');
+        async function callApi(action, params = {}) {
+            const urlParams = new URLSearchParams({ api_key: API_KEY, action, ...params });
+            const targetUrl = `<LaTex>${BASE_URL}?$</LaTex>{urlParams.toString()}`;
+            try {
+                const response = await fetch(`<LaTex>${PROXY}$</LaTex>{encodeURIComponent(targetUrl)}`);
+                const data = await response.json();
+                return data.contents;
+            } catch (e) { return 'ERROR'; }
+        }
+        async function updateBalance() {
+            const data = await callApi('getBalance');
+            if (data.startsWith('ACCESS_BALANCE:')) document.getElementById('balance').textContent = data.split(':')[1];
+        }
+        function saveHistory(item) {
+            history.unshift(item); if (history.length > 10) history.pop();
+            localStorage.setItem('shopee_history', JSON.stringify(history)); renderHistory();
+        }
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            if (history.length === 0) return;
+            list.innerHTML = history.map(h => `
+                <div class="history-item">
+                    <div><strong><LaTex>${h.phone}</strong> | OTP: <span style="color:var(--secondary); font-weight:bold;">$</LaTex>{h.otp || '-'}</span></div>
+                    <div style="font-size:11px; color:#888;"><LaTex>${h.time} | $</LaTex>{h.status}</div>
+                </div>
+            `).join('');
+        }
+        async function buyNumber() {
+            const btn = document.getElementById('buy-btn');
+            btn.disabled = true; btn.textContent = 'กำลังขอเบอร์...';
+            const data = await callApi('getNumber', { country: '52', service: 'kt' });
+            if (data.startsWith('ACCESS_NUMBER:')) {
+                const [_, id, phone] = data.split(':');
+                currentId = id;
+                document.getElementById('phone-display').textContent = phone;
+                document.getElementById('status-display').textContent = 'รอรับรหัส...';
+                document.getElementById('current-order').classList.remove('hidden');
+                document.getElementById('otp-container').classList.add('hidden');
+                document.getElementById('get-otp-btn').classList.remove('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+                document.getElementById('cancel-btn').classList.remove('hidden');
+                updateBalance();
+            } else { alert('ไม่สามารถซื้อเบอร์ได้: ' + data); }
+            btn.disabled = false; btn.textContent = 'ซื้อเบอร์ Shopee (TH)';
+        }
+        async function checkOtp() {
+            const btn = document.getElementById('get-otp-btn');
+            btn.disabled = true; btn.textContent = 'กำลังเช็ค...';
+            const data = await callApi('getStatus', { id: currentId });
+            if (data.startsWith('STATUS_OK:')) {
+                const otp = data.split(':')[1];
+                document.getElementById('otp-display').textContent = otp;
+                document.getElementById('status-display').textContent = 'ได้รับรหัสแล้ว';
+                document.getElementById('otp-container').classList.remove('hidden');
+                document.getElementById('finish-btn').classList.remove('hidden');
+                document.getElementById('get-otp-btn').classList.add('hidden');
+                document.getElementById('cancel-btn').classList.add('hidden');
+                saveHistory({ phone: document.getElementById('phone-display').textContent, otp: otp, status: 'สำเร็จ', time: new Date().toLocaleTimeString('th-TH') });
+            } else if (data === 'STATUS_WAIT_CODE') { alert('ยังไม่มีรหัสส่งมา กรุณารอสักครู่แล้วกดใหม่'); }
+            else { document.getElementById('status-display').textContent = data; }
+            btn.disabled = false; btn.textContent = 'ดึง OTP';
+        }
+        async function setStatus(s) {
+            if (s === 8 && !confirm('ยืนยันการยกเลิกเบอร์?')) return;
+            await callApi('setStatus', { id: currentId, status: s });
+            if (s === 8) saveHistory({ phone: document.getElementById('phone-display').textContent, otp: '-', status: 'ยกเลิก', time: new Date().toLocaleTimeString('th-TH') });
+            document.getElementById('current-order').classList.add('hidden');
+            currentId = null; updateBalance();
+        }
+        function copy(id) {
+            const text = document.getElementById(id).textContent;
+            const el = document.createElement('textarea'); el.value = text;
+            document.body.appendChild(el); el.select(); document.execCommand('copy');
+            document.body.removeChild(el); alert('คัดลอกแล้ว: ' + text);
+        }
+        updateBalance(); renderHistory();
+    </script>
+</body>
+</html>
